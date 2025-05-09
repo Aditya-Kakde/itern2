@@ -1,0 +1,20 @@
+function startTests() {
+            logs = [];
+            document.getElementById('globalLog').innerHTML = '';
+            
+            // Get which tests are enabled
+            const enabledTests = [];
+            document.querySelectorAll('#testTable tr').forEach(row => {
+                if (row.querySelector('.test-toggle').checked) {
+                    enabledTests.push(row.getAttribute('data-test'));
+                }
+            });
+            
+            // Send start command via WebSocket
+            socket.send(JSON.stringify({
+                type: 'start_tests',
+                tests: enabledTests
+            }));
+            
+            logMessage('System', 'Test sequence initiated');
+        }

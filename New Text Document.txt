@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>I/O Module Representation</title>
+</head>
+<body>
+<style>
+	body {
+    font-family: Arial, sans-serif;
+    background: #d3d3d3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.modules-container {
+    display: flex;
+    gap: 10px;
+}
+
+.module {
+    background: #2c2f7f; /* Dark Blue Background */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    width: 120px;
+    text-align: center;
+}
+
+.status {
+    margin-bottom: 10px;
+}
+
+.io-list {
+    list-style: none;
+    padding: 0;
+}
+
+.io-list li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.led {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.yellow { background: yellow; }
+.black { background: black; }
+
+</style>
+
+    <div class="modules-container">
+        <!-- Example DI-8110 Module -->
+        <div class="module">
+            <h3>DI-8110</h3>
+            <div class="status">
+                <span class="led yellow"></span> RY
+                <span class="led black"></span> ER
+            </div>
+            <ul class="io-list">
+                <li><span class="led black"></span> IN D17</li>
+                <li><span class="led black"></span> IN D16</li>
+                <li><span class="led black"></span> IN D15</li>
+                <li><span class="led black"></span> IN D14</li>
+                <li><span class="led black"></span> IN D13</li>
+                <li><span class="led black"></span> IN D12</li>
+                <li><span class="led black"></span> IN D11</li>
+                <li><span class="led black"></span> IN D10</li>
+            </ul>
+        </div>
+    </div>
+</body>
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+    const modulesData = [
+        { type: "DI-8110", io: ["IN D17", "IN D16", "IN D15", "IN D14", "IN D13", "IN D12", "IN D11", "IN D10"] },
+        { type: "DO-8212", io: ["OUT D07", "OUT D06", "OUT D05", "OUT D04", "OUT D03", "OUT D02", "OUT D01", "OUT D00"] },
+        { type: "AI-8320", io: ["IN V3", "IN V2", "IN V1", "IN V0"] }
+    ];
+
+    const container = document.querySelector(".modules-container");
+
+    modulesData.forEach(module => {
+        const moduleDiv = document.createElement("div");
+        moduleDiv.classList.add("module");
+
+        moduleDiv.innerHTML = `
+            <h3>${module.type}</h3>
+            <div class="status">
+                <span class="led yellow"></span> RY
+                <span class="led black"></span> ER
+            </div>
+            <ul class="io-list">
+                ${module.io.map(io => `<li><span class="led black"></span> ${io}</li>`).join('')}
+            </ul>
+        `;
+
+        container.appendChild(moduleDiv);
+    });
+});
+
+</script>
+</html>

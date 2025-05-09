@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CP-801 Test Dashboard</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #e9ecef;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 25px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: 50px;
+        }
+
+        .menu-btn {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: #007bff;
+            border-radius: 5px;
+            display: block;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-right-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .log-container {
+            height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+            text-align: left;
+            padding: 5px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .start-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .pause-btn {
+            background: #ffc107;
+            color: black;
+        }
+
+        .restart-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .stop-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .save-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .upload-btn {
+            background: #ffc107;
+            color: black;
+        }
+
+        .final-upload-btn {
+            background: #17a2b8;
+            color: white;
+            display: none;
+        }
+
+        .file-status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .back-btn {
+            float: right;
+        }
+
+        .version {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+
+        .version p {
+            margin: 5px 0;
+        }
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+
+        .status-enabled {
+            color: #28a745;
+        }
+
+        .status-disabled {
+            color: #6c757d;
+        }
+
+        .status-enabled-continuous {
+            color: #17a2b8;
+        }
+
+        .status-in-progress {
+            color: #ffc107;
+        }
+
+        .status-finished {
+            color: #03fa1f;
+        }
+
+        .status-paused {
+            color: #f20909;
+        }
+
+        .control-buttons {
+            margin-bottom: 15px;
+        }
+        
+        /* New styles for duration controls */
+        .duration-control {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .duration-input {
+            width: 50px;
+            padding: 3px;
+            margin-left: 5px;
+        }
+        .continuous-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remaining-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 5px;
+        }
+        .dropdown-container {
+      display: none;
+      background-color: #3e5871;
+      padding-left: 20px;
+    }
+
+        .dropdown-container a {
+      padding: 10px 0;
+      display: block;
+      text-decoration: none;
+      color: white;
+      font-size: 14px;
+    }
+
+    .dropdown-container a:hover {
+      text-decoration: underline;
+    }
+    </style>
+    
+</head>
+<body>
+
+<div class="container">
+    <h1>CP-801 Test Dashboard</h1>
+
+    <div class="control-buttons">
+        <button class="start-btn" onclick="startTests()">Start Test</button>
+        <button class="pause-btn" onclick="pauseTests()">Pause Test</button>
+        <button class="restart-btn" onclick="restartTests()">Restart Test</button>
+        <button class="stop-btn" onclick="stopTests()">Stop Test</button>
+        
+        <button onclick="window.location.href='cycloneV_cp801_ports.html'">Ports</button>
+        <button onclick="window.location.href='memory.html'">Memory</button>
+        <button class="back-btn" onclick="window.location.href='homepage.html'">Back</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Enable</th>
+                <th>Continuous (*)</th>
+                <th>Test Name</th>
+                <th>Status</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody id="testTable">
+            <tr data-test="Memory">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>
+                    min
+                </td>
+                <td>Memory</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="Ethernet">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>Ethernet</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="UART">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>UART 8266/RS232</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="DIO">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>DIO</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="LCD">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>LCD</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="Keyboard">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>Keyboard</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="TIL">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>TIL</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+            <tr data-test="BLE">
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td class="continuous-cell">
+                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
+                    <div class="duration-control">
+                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
+                    </div>min
+                </td>
+                <td>BLE</td>
+                <td class="status status-enabled">Enabled</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
+    *minimun 1 minute, maximum 100 minutes
+    <h3>Test Logs</h3>
+    <div class="log-container" id="globalLog"></div>
+
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Load Parameters</button>
+    <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload()">
+    <button class="final-upload-btn" id="finalUploadBtn" onclick="finalUpload()">Final Upload</button>
+    <div class="file-status" id="fileStatus">No file uploaded.</div>
+
+    <div class="top-right-info">
+        Serial Number: 994356<br>
+        Product ID: CABD-9876
+    </div>
+    <div class="version">Software Version: v1.0.0</div>
+</div>
+
+<div id="mySidebar" class="sidebar">
+    <span id="closebtn" class="close-btn" onclick="closeNav()">×</span>
+    <h2>Devices</h2>
+    <button class="dropdown-btn">CP-801</button>
+    <div class="dropdown-container">
+      <a href="#">IO Row 1</a>
+      <a href="#">IO Row 2</a>
+      <a href="#">IO Row 3</a>
+      <a href="#">IO Row 4</a>
+      <a href="#">IO Row 5</a>
+      <a href="#">IO Row 6</a>
+    </div>
+    <button class="dropdown-btn">CI-853</button>
+    <div class="dropdown-container">
+      <button class="dropdown-btn">CI 1</button>
+      <div class="dropdown-container">
+        <a href="#">IO Row 1</a>
+        <a href="#">IO Row 2</a>
+        <a href="#">IO Row 3</a>
+        <a href="#">IO Row 4</a>
+        <a href="#">IO Row 5</a>
+        <a href="#">IO Row 6</a>
+      </div>
+      <button class="dropdown-btn">CI 2</button>
+      <div class="dropdown-container">
+        <a href="#">IO Row 1</a>
+        <a href="#">IO Row 2</a>
+        <a href="#">IO Row 3</a>
+        <a href="#">IO Row 4</a>
+        <a href="#">IO Row 5</a>
+        <a href="#">IO Row 6</a>
+      </div>
+      <button class="dropdown-btn">CI 3</button>
+      <div class="dropdown-container">
+        <a href="#">IO Row 1</a>
+        <a href="#">IO Row 2</a>
+        <a href="#">IO Row 3</a>
+        <a href="#">IO Row 4</a>
+        <a href="#">IO Row 5</a>
+        <a href="#">IO Row 6</a>
+      </div>
+      <button class="dropdown-btn">CI 4</button>
+      <div class="dropdown-container">
+        <a href="#">IO Row 1</a>
+        <a href="#">IO Row 2</a>
+        <a href="#">IO Row 3</a>
+        <a href="#">IO Row 4</a>
+        <a href="#">IO Row 5</a>
+        <a href="#">IO Row 6</a>
+      </div>
+      <button class="dropdown-btn">CI 5</button>
+      <div class="dropdown-container">
+        <a href="#">IO Row 1</a>
+        <a href="#">IO Row 2</a>
+        <a href="#">IO Row 3</a>
+        <a href="#">IO Row 4</a>
+        <a href="#">IO Row 5</a>
+        <a href="#">IO Row 6</a>
+      </div>
+      <button class="dropdown-btn">CI 6</button>
+      <div class="dropdown-container">
+        <a href="#">IO Row 1</a>
+        <a href="#">IO Row 2</a>
+        <a href="#">IO Row 3</a>
+        <a href="#">IO Row 4</a>
+        <a href="#">IO Row 5</a>
+        <a href="#">IO Row 6</a>
+      </div>
+    </div>
+</div>
+
+<button class="menu-btn" onclick="openNav()">☰</button>
+</body>
+
+<script>
+    const logContainer = document.getElementById('globalLog');
+    const testTable = document.getElementById('testTable');
+    const testCounts = {};  // For tracking per-test Total / Pass / Fail
+    const testStates = {};  // To track the state of each test
+    const testIntervals = {}; // To track interval IDs for continuous tests
+    const testTimers = {}; // To track duration timeouts
+    let testsWerePaused = false;
+
+    // Initialize test states
+    document.querySelectorAll("#testTable tr").forEach(row => {
+        const testName = row.getAttribute("data-test");
+        testStates[testName] = {
+            enabled: true,
+            continuous: false,
+            running: false,
+            finished: false,
+            paused: false
+        };
+    });
+
+    function updateTestStatus(checkbox) {
+        const row = checkbox.closest("tr");
+        const testName = row.getAttribute("data-test");
+        const statusCell = row.querySelector(".status");
+        
+        const isEnabled = row.querySelector(".test-toggle").checked;
+        const isContinuous = row.querySelector(".continuous-toggle").checked;
+        
+        testStates[testName].enabled = isEnabled;
+        testStates[testName].continuous = isContinuous;
+        
+        if (!isEnabled) {
+            statusCell.textContent = "Disabled";
+            statusCell.className = "status status-disabled";
+            testStates[testName].running = false;
+            testStates[testName].finished = false;
+            testStates[testName].paused = false;
+            
+            // Clear any continuous test interval
+            if (testIntervals[testName]) {
+                clearInterval(testIntervals[testName]);
+                delete testIntervals[testName];
+            }
+            if (testTimers[testName]) {
+                clearTimeout(testTimers[testName]);
+                delete testTimers[testName];
+            }
+        } else if (testStates[testName].paused) {
+            statusCell.textContent = "Paused";
+            statusCell.className = "status status-paused";
+        } else if (isContinuous) {
+            statusCell.textContent = "Enabled (C)";
+            statusCell.className = "status status-enabled-continuous";
+            testStates[testName].finished = false;
+        } else if (testStates[testName].running) {
+            statusCell.textContent = "In Progress";
+            statusCell.className = "status status-in-progress";
+        } else if (testStates[testName].finished) {
+            statusCell.textContent = "Finished";
+            statusCell.className = "status status-finished";
+        } else {
+            statusCell.textContent = "Enabled";
+            statusCell.className = "status status-enabled";
+        }
+    }
+
+    function startTests() {
+        const rows = testTable.querySelectorAll("tr");
+        let anyTestResumed = false;
+
+        rows.forEach(row => {
+            const testName = row.getAttribute("data-test");
+            const isEnabled = row.querySelector(".test-toggle").checked;
+            const isContinuous = row.querySelector(".continuous-toggle").checked;
+
+            if (!isEnabled) return;
+
+            // Fresh start (no pause) → Run all enabled tests
+            if (!testsWerePaused) {
+                if (!testCounts[testName]) {
+                    testCounts[testName] = { total: 0, pass: 0, fail: 0 };
+                }
+
+                testStates[testName].running = true;
+                testStates[testName].paused = false;
+                testStates[testName].finished = false;
+                updateTestStatus(row.querySelector(".test-toggle"));
+
+                if (isContinuous) {
+                    runTestContinuously(row, testName);
+                } else {
+                    runTestOnce(row, testName);
+                }
+            } 
+            // Resume after pause → Only resume paused tests
+            else if (testStates[testName].paused) {
+                testStates[testName].running = true;
+                testStates[testName].paused = false;
+                updateTestStatus(row.querySelector(".test-toggle"));
+
+                if (isContinuous) {
+                    runTestContinuously(row, testName);
+                } else {
+                    runTestOnce(row, testName);
+                }
+                anyTestResumed = true;
+            }
+        });
+
+        if (testsWerePaused) {
+            logMessage(anyTestResumed ? "Resumed paused tests" : "No tests to resume");
+            testsWerePaused = false;
+        } else {
+            logMessage("All enabled tests started");
+        }
+    }
+
+    function pauseTests() {
+        testsWerePaused = false;
+        let anyTestPaused = false;
+
+        const rows = testTable.querySelectorAll("tr");
+        rows.forEach(row => {
+            const testName = row.getAttribute("data-test");
+            
+            if (testStates[testName].running) {
+                testStates[testName].paused = true;
+                testStates[testName].running = false;
+                
+                if (testIntervals[testName]) {
+                    clearInterval(testIntervals[testName]);
+                    delete testIntervals[testName];
+                }
+                // Don't clear timer - we'll reuse it when resuming
+                
+                updateTestStatus(row.querySelector(".test-toggle"));
+                logMessage(`[${testName}] Paused`);
+                anyTestPaused = true;
+            }
+        });
+
+        if (anyTestPaused) {
+            testsWerePaused = true;
+        }
+    }
+
+    function restartTests() {
+        // First stop all tests
+        stopTests();
+        
+        // Reset test counts and states
+        const rows = testTable.querySelectorAll("tr");
+        rows.forEach(row => {
+            const testName = row.getAttribute("data-test");
+            testCounts[testName] = { total: 0, pass: 0, fail: 0 };
+            testStates[testName].finished = false;
+            testStates[testName].paused = false;
+            updateTestStatus(row.querySelector(".test-toggle"));
+            
+            // Clear result cell
+            const resultCell = row.cells[4];
+            resultCell.textContent = "-";
+        });
+        
+        // Clear logs
+        logContainer.innerHTML = "";
+        
+        // Start tests again
+        startTests();
+        logMessage("All tests restarted");
+    }
+
+    function stopTests() {
+        const rows = testTable.querySelectorAll("tr");
+        rows.forEach(row => {
+            const testName = row.getAttribute("data-test");
+            
+            testStates[testName].running = false;
+            testStates[testName].paused = false;
+            
+            // Clear continuous test interval if exists
+            if (testIntervals[testName]) {
+                clearInterval(testIntervals[testName]);
+                delete testIntervals[testName];
+            }
+            if (testTimers[testName]) {
+                clearTimeout(testTimers[testName]);
+                delete testTimers[testName];
+            }
+            
+            if (row.querySelector(".test-toggle").checked) {
+                if (testStates[testName].finished) {
+                    updateTestStatus(row.querySelector(".test-toggle"));
+                } else {
+                    testStates[testName].finished = false;
+                    updateStatus(row, "Enabled", "enabled");
+                }
+            }
+        });
+        logMessage("All tests stopped");
+    }
+
+    function runTestOnce(row, testName) {
+        updateStatus(row, "In Progress", "in-progress");
+        setTimeout(() => {
+            if (testStates[testName].paused) {
+                updateStatus(row, "Paused", "paused");
+                return;
+            }
+
+            const passed = Math.random() > 0.3;
+            testCounts[testName].total++;
+            
+            // Generate detailed test results for Ethernet
+            if (testName === "Ethernet") {
+                let allPortsMessage = "";
+                const ports = ["X1", "X2", "X3"];
+                
+                // Test each port
+                for (const port of ports) {
+                    const packetsSent = 1000;
+                    const portPassed = Math.random() > 0.3;
+                    const packetsReceived = portPassed ? 1000 : 800 + Math.floor(Math.random() * 150);
+                    const portResult = portPassed ? `<span class="pass">Pass</span>` : `<span class="fail">Fail</span>`;
+                    allPortsMessage += `Ethernet-${port} ${packetsSent} Packets sent/${packetsReceived} received: ${portResult}<br>`;
+                    
+                    if (portPassed) {
+                        testCounts[testName].pass++;
+                    } else {
+                        testCounts[testName].fail++;
+                    }
+                }
+                
+                // Update status based on overall test result
+                if (passed) {
+                    updateStatus(row, "Finished", "finished");
+                    updateResult(row, testName, true);
+                    logMessage(`[${testName}]<br>${allPortsMessage}`);
+                } else {
+                    updateStatus(row, "Finished", "finished");
+                    updateResult(row, testName, false);
+                    logMessage(`[${testName}]<br>${allPortsMessage}`);
+                }
+            } else {
+                // Keep other tests the same
+                if (passed) {
+                    testCounts[testName].pass++;
+                    updateStatus(row, "Finished", "finished");
+                    updateResult(row, testName, true);
+                    logMessage(`[${testName}] Test Passed`);
+                } else {
+                    testCounts[testName].fail++;
+                    updateStatus(row, "Finished", "finished");
+                    updateResult(row, testName, false);
+                    logMessage(`[${testName}] Test Failed`);
+                }
+            }
+            
+            testStates[testName].running = false;
+            testStates[testName].finished = true;
+            updateTestStatus(row.querySelector(".test-toggle"));
+        }, 1000);
+    }
+
+    function runTestContinuously(row, testName) {
+        // Clear any existing interval/timer
+        if (testIntervals[testName]) clearInterval(testIntervals[testName]);
+        if (testTimers[testName]) clearTimeout(testTimers[testName]);
+
+        // Get duration from input (now in minutes)
+        const durationInput = row.querySelector('.duration-input');
+        const duration = Math.min(Math.max(parseInt(durationInput.value) || 1, 1), 100); // Clamp between 1-100 minutes
+        durationInput.value = duration; // Ensure value stays within bounds
+        const durationMs = duration * 60 * 1000; // Convert minutes to ms
+        const startTime = Date.now();
+        const endTime = startTime + durationMs;
+
+        // Create remaining time display
+        const remainingElement = document.createElement("span");
+        remainingElement.id = `remaining-${testName}`;
+        remainingElement.className = "remaining-time";
+        row.cells[4].appendChild(remainingElement);
+
+        const updateRemaining = () => {
+            const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            remainingElement.textContent = `(${minutes}m ${seconds}s)`;
+            return remaining > 0;
+        };
+
+        const runTestCycle = () => {
+            if (testStates[testName].paused) return;
+            
+            // Check if time remains
+            if (!updateRemaining()) {
+                stopContinuousTest(testName);
+                return;
+            }
+
+            updateStatus(row, "In Progress", "in-progress");
+            
+            // Simulate test execution (1 second)
+            setTimeout(() => {
+                if (testStates[testName].paused) return;
+                
+                const passed = Math.random() > 0.3;
+                testCounts[testName].total++;
+                
+                // Generate detailed test results for Ethernet
+                if (testName === "Ethernet") {
+                    let allPortsMessage = "";
+                    const ports = ["X1", "X2", "X3"];
+                    
+                    for (const port of ports) {
+                        const packetsSent = 1000;
+                        const portPassed = Math.random() > 0.3;
+                        const packetsReceived = portPassed ? 1000 : 800 + Math.floor(Math.random() * 150);
+                        const portResult = portPassed ? `<span class="pass">Pass</span>` : `<span class="fail">Fail</span>`;
+                        allPortsMessage += `Ethernet-${port} ${packetsSent} Packets sent/${packetsReceived} received: ${portResult}<br>`;
+                        
+                        if (portPassed) {
+                            testCounts[testName].pass++;
+                        } else {
+                            testCounts[testName].fail++;
+                        }
+                    }
+                    
+                    logMessage(`[${testName}]<br>${allPortsMessage}`);
+                } else {
+                    // Keep other tests the same
+                    if (passed) {
+                        testCounts[testName].pass++;
+                        logMessage(`[${testName}] Test Passed`);
+                    } else {
+                        testCounts[testName].fail++;
+                        logMessage(`[${testName}] Test Failed`);
+                    }
+                }
+                
+                updateResult(row, testName);
+                updateRemaining();
+            }, 1000);
+        };
+
+        // Initial update
+        updateRemaining();
+
+        // Run tests continuously every 2 seconds (1s test + 1s gap)
+        testIntervals[testName] = setInterval(runTestCycle, 2000);
+        
+        // Set absolute end time
+        testTimers[testName] = setTimeout(() => {
+            stopContinuousTest(testName);
+            logMessage(`[${testName}] Continuous test completed after ${duration} minutes`);
+        }, durationMs);
+    }
+    
+    function stopContinuousTest(testName) {
+        if (testIntervals[testName]) {
+            clearInterval(testIntervals[testName]);
+            delete testIntervals[testName];
+        }
+        if (testTimers[testName]) {
+            clearTimeout(testTimers[testName]);
+            delete testTimers[testName];
+        }
+        
+        const row = document.querySelector(`tr[data-test="${testName}"]`);
+        if (row) {
+            testStates[testName].running = false;
+            testStates[testName].finished = true;
+            updateTestStatus(row.querySelector(".test-toggle"));
+            document.getElementById(`remaining-${testName}`)?.remove();
+        }
+    }
+    
+    function updateRemainingTime(testName, seconds) {
+        let remainingElement = document.getElementById(`remaining-${testName}`);
+        if (!remainingElement) {
+            const row = document.querySelector(`tr[data-test="${testName}"]`);
+            if (row) {
+                remainingElement = document.createElement("span");
+                remainingElement.id = `remaining-${testName}`;
+                remainingElement.className = "remaining-time";
+                row.cells[4].appendChild(remainingElement);
+            }
+        }
+        if (remainingElement) {
+            remainingElement.textContent = `(${seconds}s)`;
+        }
+    }
+
+    function updateStatus(row, status, statusClass) {
+        const statusCell = row.querySelector(".status");
+        statusCell.textContent = status;
+        statusCell.className = `status status-${statusClass}`;
+    }
+
+    function updateResult(row, testName, passed) {
+        const resultCell = row.cells[4];
+        const count = testCounts[testName];
+        resultCell.innerHTML = `Total: ${count.total}, 
+            <span class="pass">Pass: ${count.pass}</span>, 
+            <span class="fail">Fail: ${count.fail}</span>`;
+    }
+
+    function logMessage(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        const fullMessage = `[${timestamp}] ${message}<br>`;
+        logContainer.innerHTML += fullMessage;
+        logContainer.scrollTop = logContainer.scrollHeight;
+
+        // Save logs to localStorage
+        const logs = localStorage.getItem('logMessages') || '';
+        localStorage.setItem('logMessages', logs + fullMessage);
+
+        // Trigger a storage event (for real-time updates)
+        localStorage.setItem('logUpdate', Date.now().toString());
+    }
+
+    function saveLogs() {
+        const logText = logContainer.innerText;
+        const blob = new Blob([logText], { type: 'text/plain' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "test_logs.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        localStorage.removeItem("testLogs");
+    }
+
+    function handleFileUpload() {
+        const fileInput = document.getElementById("fileInput");
+        const fileStatus = document.getElementById("fileStatus");
+        const finalUploadBtn = document.getElementById("finalUploadBtn");
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileStatus.textContent = `File uploaded: ${file.name}`;
+            fileStatus.style.display = "block";
+            finalUploadBtn.style.display = "inline-block";
+        }
+    }
+
+    function finalUpload() {
+        alert("Final upload initiated.");
+        // Add final upload logic if needed
+    }
+
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+    const dropdowns = document.getElementsByClassName("dropdown-btn");
+    for (let i = 0; i < dropdowns.length; i++) {
+      dropdowns[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        const dropdownContent = this.nextElementSibling;
+        if (dropdownContent.style.display === "block") {
+          dropdownContent.style.display = "none";
+        } else {
+          dropdownContent.style.display = "block";
+        }
+      });
+    }
+</script>
+</html>

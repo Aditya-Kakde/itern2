@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnosis Dashboard</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            position: relative;
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+        }
+        .log-container {
+            height: 580px;
+            width: 50%;
+            overflow-y: auto;
+            font-size: 12px;
+            text-align: left;
+            padding: 5px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .button-container {
+            width: 48%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 20px;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            width: fit-content;
+        }
+        .start-btn {
+            background: #28a745;
+            color: white;
+        }
+        .save-btn {
+            width:269px;
+            background: #007bff;
+            color: white;
+        }
+        .back-btn {
+            float: right;
+        }
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Diagnosis</h1>
+    <h2>Status Logs</h2>
+    <div class="dashboard">
+        <div class="log-container" id="globalLog"></div>
+        <div class="button-container">
+            <button class="start-btn" onclick="savestatusLogs()">Download Status Log</button>
+            <p>      </p>
+            <button class="save-btn" onclick="savetotalLogs()">Download Total Log</button>
+            <p>      </p>
+        </div>
+    </div>
+    <div>
+        <button class="back-btn" onclick="window.location.href='homepage.html'">Back</button>
+      </div>
+</div>
+    
+    
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const globalLog = document.getElementById('globalLog');
+
+    // Loading existing logs on page load
+    const savedLogs = localStorage.getItem('logMessages');
+    if (savedLogs) {
+        globalLog.innerHTML = savedLogs;
+        globalLog.scrollTop = globalLog.scrollHeight;
+    }
+
+    // Listening for new logs (real-time updates)
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'logMessages') {
+            globalLog.innerHTML = event.newValue;
+            globalLog.scrollTop = globalLog.scrollHeight;
+        }
+        });
+    });
+
+    // Download functions 
+    function savetotalLogs() {
+        const logs = localStorage.getItem('logMessages');
+        const blob = new Blob([logs], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'TotalLogs.txt';
+        a.click();
+        localStorage.removeItem('logMessages');
+        globalLog.innerHTML = '';
+    }
+    function savestatusLogs() {
+        const logs = localStorage.getItem('logMessages');
+        const blob = new Blob([logs], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'StatusLogs.txt';
+        a.click();
+    }
+</script>
+</html>

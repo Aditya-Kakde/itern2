@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Test Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f4; }
+        .container { width: 55%; margin: auto; padding: 20px; background: white; box-shadow: 2px 2px 10px gray; }
+        .info-box { padding: 10px; margin: 10px; background: #ddd; border-radius: 5px; }
+        .status { color: black; font-weight: bold; }
+        .pass { color: green; }
+        .fail { color: red; }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        .status {
+            font-weight: bold;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .back-btn{
+            float: right;
+        }
+        .memory-details {
+            text-align: left;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Memory Test Dashboard</h1>
+        <button class="back-btn" onclick="window.location.href='cp801test2.html'">Back</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Memory Type</th>
+                    <th>Status</th>
+                    <th>Result</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="testTable">
+                <tr data-test="uSD">
+                    <td>SD Card</td>
+                    <td class="status">Completed</td>
+                    <td class="result pass">Pass</td>
+                    <td><button onclick="showDetails('SD')">View</button></td>
+                </tr>
+                <tr data-test="eMMC">
+                    <td>eMMC</td>
+                    <td class="status">Completed</td>
+                    <td class="result pass">Pass</td>
+                    <td><button onclick="showDetails('eMMC')">View</button></td>
+                </tr>
+                <tr data-test="QSPI">
+                    <td>QSPI Flash</td>
+                    <td class="status">Completed</td>
+                    <td class="result pass">Pass</td>
+                    <td><button onclick="showDetails('QSPI')">View</button></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div id="detailsContainer" class="memory-details" style="display: none;">
+            <h3 id="detailTitle">Memory Test Details</h3>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample test results data
+        const memoryTestResults = {
+            SD : {
+                capacity: "32GB",
+                speed: "45MB/s read, 25MB/s write",
+                health: "98%",
+                tests: [
+                    "Read Test: Pass (45MB/s)",
+                    "Write Test: Pass (25MB/s)",
+                    "Integrity Test: Pass (0 bad sectors)"
+                ]
+            },
+            eMMC: {
+                capacity: "16GB",
+                speed: "120MB/s read, 80MB/s write",
+                health: "100%",
+                tests: [
+                    "Read Test: Pass (120MB/s)",
+                    "Write Test: Pass (80MB/s)",
+                    "Wear Leveling: Normal"
+                ]
+            },
+            QSPI: {
+                capacity: "64MB",
+                speed: "40MB/s read, 15MB/s write",
+                health: "100%",
+                tests: [
+                    "Read Test: Pass (40MB/s)",
+                    "Write Test: Pass (15MB/s)",
+                    "Erase Test: Pass"
+                ]
+            }
+        };
+
+        // Function to show memory test details
+        function showDetails(memoryType) {
+            const details = memoryTestResults[memoryType];
+            const detailTitle = document.getElementById('detailTitle');
+            const detailContent = document.getElementById('detailContent');
+            const container = document.getElementById('detailsContainer');
+            
+            detailTitle.textContent = `${memoryType} Test Details (sample data)`;
+            
+            let html = `
+                <p><strong>Capacity:</strong> ${details.capacity}</p>
+                <p><strong>Speed:</strong> ${details.speed}</p>
+                <p><strong>Health:</strong> ${details.health}</p>
+                <h4>Test Results:</h4>
+                <ul>
+            `;
+            
+            details.tests.forEach(test => {
+                html += `<li>${test}</li>`;
+            });
+            
+            html += `</ul>`;
+            detailContent.innerHTML = html;
+            container.style.display = 'block';
+        }
+
+        // Simulate random test results on page load
+        window.onload = function() {
+            const testRows = document.querySelectorAll("#testTable tr");
+            
+            testRows.forEach(row => {
+                const testName = row.getAttribute("data-test");
+                const statusCell = row.querySelector(".status");
+                const resultCell = row.querySelector(".result");
+                
+                // 80% chance of pass, 20% chance of fail
+                const passed = Math.random() > 0.2;
+                
+                statusCell.textContent = "Completed";
+                
+                if (passed) {
+                    resultCell.textContent = "Pass";
+                    resultCell.className = "result pass";
+                } else {
+                    resultCell.textContent = "Fail";
+                    resultCell.className = "result fail";
+                    
+                    // Add error details to the test results
+                    memoryTestResults[testName].tests.push(
+                        `Error Test: Failed (${testName === 'SD' ? 'Bad sectors detected' : 
+                        testName === 'eMMC' ? 'Write timeout' : 'Erase failure'})`
+                    );
+                }
+            });
+        };
+    </script>
+</body>
+</html>
