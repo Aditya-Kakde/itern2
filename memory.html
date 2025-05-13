@@ -51,13 +51,35 @@
             background: #f9f9f9;
             border-radius: 5px;
         }
+        .version {
+            position: relative;
+            bottom: 1px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+        .top-right-info {
+            position: relative;
+            top: 10px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div class="top-right-info">
+        Serial Number: 994356<br>
+        Product ID: CABD-9876
+        </div>
         <h1>Memory Test Dashboard</h1>
-        <button class="back-btn" onclick="window.location.href='cp801test2.html'">Back</button>
+        <button class="back-btn" onclick="window.location.href='cp801fromscratch2.html'">Back</button>
         
         <table>
             <thead>
@@ -87,13 +109,22 @@
                     <td class="result pass">Pass</td>
                     <td><button onclick="showDetails('QSPI')">View</button></td>
                 </tr>
+                <tr data-test="QSPI">
+                    <td>NVM RAM</td>
+                    <td class="status">Completed</td>
+                    <td class="result pass">Pass</td>
+                    <td><button onclick="showDetails('QSPI')">View</button></td>
+                </tr>
             </tbody>
         </table>
+        
+        
         
         <div id="detailsContainer" class="memory-details" style="display: none;">
             <h3 id="detailTitle">Memory Test Details</h3>
             <div id="detailContent"></div>
         </div>
+        <div class="version">Software Version: v1.0.0</div>
     </div>
 
     <script>

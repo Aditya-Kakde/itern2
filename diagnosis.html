@@ -71,7 +71,7 @@
         }
         .back-btn {
             position: absolute;
-            top: 10px;
+            top: 70px;
             right: 10px;
             background: #dc3545;
             color: white;
@@ -80,11 +80,32 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }.version {
+            position: relative;
+            bottom: 1px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+        .top-right-info {
+            position: relative;
+            top: 10px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="top-right-info">
+        Serial Number: 994356<br>
+        Product ID: CABD-9876
+        </div>
     <h1>Diagnosis</h1>
     <h2>Status Logs</h2>
     <div class="dashboard">
@@ -99,6 +120,7 @@
     <div>
         <button class="back-btn" onclick="window.location.href='index.html'">Back</button>
       </div>
+      <div class="version">Software Version: v1.0.0</div>
 </div>
     
     

@@ -319,7 +319,6 @@
         <thead>
             <tr>
                 <th>Enable</th>
-                <th>Continuous (*)</th>
                 <th>Test Name</th>
                 <th>Status</th>
                 <th>Result</th>
@@ -328,109 +327,54 @@
         <tbody id="testTable">
             <tr data-test="Memory">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>
-                    min
-                </td>
                 <td>Memory</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="Ethernet">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
-                <td>Ethernet</td>
+                <td>Ethernet(X1-X2 loopback)</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="UART">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
-                <td>UART 8266/RS232</td>
+                <td>UART</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="DIO">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
                 <td>DIO</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="AI">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
                 <td>AI</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="LCD">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
                 <td>LCD</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="Keyboard">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
                 <td>Keyboard</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="TIL">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
                 <td>TIL</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
             <tr data-test="BLE">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td class="continuous-cell">
-                    <input type="checkbox" class="continuous-toggle" onchange="updateTestStatus(this)">
-                    <div class="duration-control">
-                        <input type="number" class="duration-input" value="1" min="1" placeholder="Sec">
-                    </div>min
-                </td>
                 <td>BLE</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
@@ -554,7 +498,7 @@
         const statusCell = row.querySelector(".status");
         
         const isEnabled = row.querySelector(".test-toggle").checked;
-        const isContinuous = row.querySelector(".continuous-toggle").checked;
+        
         
         testStates[testName].enabled = isEnabled;
         testStates[testName].continuous = isContinuous;
@@ -565,16 +509,6 @@
             testStates[testName].running = false;
             testStates[testName].finished = false;
             testStates[testName].paused = false;
-            
-            // Clear any continuous test interval
-            if (testIntervals[testName]) {
-                clearInterval(testIntervals[testName]);
-                delete testIntervals[testName];
-            }
-            if (testTimers[testName]) {
-                clearTimeout(testTimers[testName]);
-                delete testTimers[testName];
-            }
         } else if (testStates[testName].paused) {
             statusCell.textContent = "Paused";
             statusCell.className = "status status-paused";
@@ -601,7 +535,7 @@
         rows.forEach(row => {
             const testName = row.getAttribute("data-test");
             const isEnabled = row.querySelector(".test-toggle").checked;
-            const isContinuous = row.querySelector(".continuous-toggle").checked;
+            
 
             if (!isEnabled) return;
 
@@ -616,11 +550,9 @@
                 testStates[testName].finished = false;
                 updateTestStatus(row.querySelector(".test-toggle"));
 
-                if (isContinuous) {
-                    runTestContinuously(row, testName);
-                } else {
-                    runTestOnce(row, testName);
-                }
+               
+                runTestOnce(row, testName);
+                
             } 
             // Resume after pause → Only resume paused tests
             else if (testStates[testName].paused) {
@@ -628,11 +560,9 @@
                 testStates[testName].paused = false;
                 updateTestStatus(row.querySelector(".test-toggle"));
 
-                if (isContinuous) {
-                    runTestContinuously(row, testName);
-                } else {
-                    runTestOnce(row, testName);
-                }
+                
+                runTestOnce(row, testName);
+                
                 anyTestResumed = true;
             }
         });

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ports Test Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f4; }
+    .container { width: 55%; margin: auto; padding: 20px; background: white; box-shadow: 2px 2px 10px gray; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table, th, td { border: 1px solid #ddd; }
+    th, td { padding: 10px; text-align: center; }
+    th { background: #007bff; color: white; }
+    .status { font-weight: bold; }
+    .pass { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+    button { margin-top: 10px; padding: 10px; font-size: 16px; border: none; cursor: pointer; border-radius: 5px; }
+    .start-btn { background: #28a745; color: white; }
+    .back-btn { float: right; background: #6c757d; color: white; }
+    .reconfig-btn { background: #ffc107; color: black; margin-left: 10px; }
+    .version {
+            position: relative;
+            bottom: 1px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+        .top-right-info {
+            position: relative;
+            top: 10px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+    #configModal {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -20%);
+      background: white;
+      padding: 20px;
+      border: 1px solid #888;
+      box-shadow: 0 0 10px gray;
+      z-index: 1000;
+    }
+
+    #configModal select {
+      margin: 10px;
+    }
+
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-right-info">
+        Serial Number: 994356<br>
+        Product ID: CABD-9876
+    </div>
+    <h1>Ports Test Dashboard</h1>
+    <button class="start-btn" onclick="startTests()">Start Test</button>
+    <button class="reconfig-btn" onclick="openReconfig()">Reconfigure</button>
+    <button class="back-btn" onclick="window.location.href='cp801fromscratch2.html'">Back</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Enable</th>
+          <th>Port Name</th>
+          <th>Port Type</th>
+          <th>Status</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody id="testTable">
+        <tr data-test="X1">
+          <td><input type="checkbox" class="test-toggle" checked></td>
+          <td>X1</td>
+          <td class="port-type">Transmitting Port</td>
+          <td class="status">Pending</td>
+          <td>-</td>
+        </tr>
+        <tr data-test="X2">
+          <td><input type="checkbox" class="test-toggle" checked></td>
+          <td>X2</td>
+          <td class="port-type">Receiving Port</td>
+          <td class="status">Pending</td>
+          <td>-</td>
+        </tr>
+        <tr data-test="X3">
+          <td><input type="checkbox" class="test-toggle" checked></td>
+          <td>X3</td>
+          <td class="port-type">Webserver Port</td>
+          <td class="status">Pending</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!--<button onclick="showConfigurations()">View</button>-->
+
+    <div id="configure_container" class="memory-details" style="display: none;">
+      <h3 id="detailTitle">Memory Test Details</h3>
+      <div id="detailContent"></div>
+    </div>
+    <div class="version">Software Version: v1.0.0</div>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div id="modalOverlay"></div>
+
+  <!-- Reconfigure Modal -->
+  <div id="configModal">
+    <h3>Reconfigure Port Roles</h3>
+    <form id="reconfigForm">
+      <div>
+        <label>X1:</label>
+        <select id="x1Select">
+          <option value="">Select</option>
+          <option value="Transmitting Port">Transmitting Port</option>
+          <option value="Receiving Port">Receiving Port</option>
+          <option value="Webserver Port">Webserver Port</option>
+        </select>
+      </div>
+      <div>
+        <label>X2:</label>
+        <select id="x2Select">
+          <option value="">Select</option>
+          <option value="Transmitting Port">Transmitting Port</option>
+          <option value="Receiving Port">Receiving Port</option>
+          <option value="Webserver Port">Webserver Port</option>
+        </select>
+      </div>
+      <div>
+        <label>X3:</label>
+        <select id="x3Select">
+          <option value="">Select</option>
+          <option value="Transmitting Port">Transmitting Port</option>
+          <option value="Receiving Port">Receiving Port</option>
+          <option value="Webserver Port">Webserver Port</option>
+        </select>
+      </div>
+      <button type="button" onclick="applyConfig()">Apply</button>
+    </form>
+  </div>
+
+  <script>
+    function startTests() {
+      const tableRows = document.querySelectorAll("#testTable tr");
+      let delay = 0;
+
+      tableRows.forEach((row) => {
+        const testName = row.getAttribute("data-test");
+        const statusCell = row.cells[3];
+        const resultCell = row.cells[4];
+        const checkbox = row.querySelector(".test-toggle");
+        const portType = row.querySelector(".port-type").innerText;
+
+        if (checkbox.checked) {
+          setTimeout(() => {
+            statusCell.innerText = "Running";
+            statusCell.style.color = "blue";
+          }, delay);
+
+          setTimeout(() => {
+            statusCell.innerText = "Completed";
+            statusCell.style.color = "green";
+            const passed = Math.random() > 0.2;
+            if (passed) {
+              resultCell.innerHTML = '<span class="pass">Pass</span>';
+              if (portType === "Transmitting Port") resultCell.innerHTML += '<br>1000 packets transmitted';
+              else if (portType === "Receiving Port") resultCell.innerHTML += '<br>1000 packets received';
+              else if (portType === "Webserver Port") resultCell.innerHTML += '<br>Webserver responding';
+            } else {
+              resultCell.innerHTML = '<span class="fail">Fail</span>';
+              if (portType === "Transmitting Port") resultCell.innerHTML += '<br>Error: Transmission timeout';
+              else if (portType === "Receiving Port") resultCell.innerHTML += '<br>Error: 200 packets dropped';
+              else if (portType === "Webserver Port") resultCell.innerHTML += '<br>Error: Connection refused';
+            }
+          }, delay + 1000);
+
+          delay += 2000;
+        }
+      });
+    }
+
+    function openReconfig() {
+      document.getElementById("modalOverlay").style.display = "block";
+      document.getElementById("configModal").style.display = "block";
+    }
+
+    function applyConfig() {
+      const roles = [x1Select.value, x2Select.value, x3Select.value];
+      const uniqueRoles = new Set(roles);
+
+      if (roles.includes("") || uniqueRoles.size < 3) {
+        alert("Each port must have a unique role.");
+        return;
+      }
+
+      document.querySelector('[data-test="X1"] .port-type').innerText = x1Select.value;
+      document.querySelector('[data-test="X2"] .port-type').innerText = x2Select.value;
+      document.querySelector('[data-test="X3"] .port-type').innerText = x3Select.value;
+
+      document.getElementById("modalOverlay").style.display = "none";
+      document.getElementById("configModal").style.display = "none";
+    }
+     function showConfigurations() {
+        const rows = document.querySelectorAll("#testTable tr");
+        const content = document.getElementById("detailContent");
+
+        // Clear previous content
+        content.innerHTML = "";
+
+        // Loop through each row and extract current configuration
+        rows.forEach(row => {
+            const portName = row.cells[1].innerText;
+            const portType = row.cells[2].innerText;
+            content.innerHTML += `<p><strong>${portName}</strong>: ${portType}</p>`;
+        });
+
+        // Show the container
+        document.getElementById("configure_container").style.display = "block";
+    }
+  </script>
+</body>
+</html>

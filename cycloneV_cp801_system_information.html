@@ -52,23 +52,63 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        .version {
+            position: relative;
+            bottom: 1px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+        .top-right-info {
+            position: relative;
+            top: 10px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
     
     <div class="container">
+        <div class="top-right-info">
+        Serial Number: 994356<br>
+        Product ID: CABD-9876
+        </div>
         <h1>System Information</h1>
         <div class ="back-btn"><button class ="back-btn" onclick="window.location.href='index.html'">Back</button></div>
         <div class="info-box"><strong>CPU :</strong> <span id="cpu"></span></div>
         <div class="info-box"><strong>Memory Available:</strong> <span id="memory"></span></div>
         <div class="info-box"><strong>Kernel Version:</strong> <span id="kernel"></span></div>
+        <div class="info-box"><strong>Linux Version:</strong> <span id="kernel"></span></div>
+        <div class="info-box"><strong>Boot Loader:</strong> <span id="kernel"></span></div>
         <div class="info-box"><strong>Disk Space:</strong> <span id="disk"></span></div>
     </div>
 
-    <h2>Test Status</h2>
+    <h2>Peripherals</h2>
     <div class="container">
-        <div class="info-box"><strong>UART Status:</strong> <span id="usb" class="status">OK</span></div>
-        <div class="info-box"><strong>Ethernet Status:</strong> <span id="ethernet" class="error">Disconnected</span></div>
+        <div class="info-box"><strong>Ethernet 1(X1):</strong> <span id="ethernet1" class="status"></span></div>
+        <div class="info-box"><strong>Ethernet 2(X2):</strong> <span id="ethernet2" class="status"></span></div>
+        <div class="info-box"><strong>Ethernet 3(X3):</strong> <span id="ethernet3" class="status"></span></div>
+        <div class="info-box"><strong>RS485(X4):</strong> <span id="rs485" class="status"></span></div>
+        <div class="info-box"><strong>RS232(X5):</strong> <span id="rs232" class="status"></span></div>
+        <div class="info-box"><strong>RS485(X6):</strong> <span id="rs485" class="status"></span></div>
+        <div class="info-box"><strong>BLE:</strong> <span id="ble" class="status"></span></div>
+        <div class="info-box"><strong>LTE:</strong> <span id="lte" class="status"></span></div>
+        <div class="info-box"><strong>eMMC:</strong> <span id="emmc" class="status"></span></div>
+        <div class="info-box"><strong>RTC:</strong> <span id="rtc" class="status"></span></div>
+        <div class="info-box"><strong>Debug:</strong> <span id="debug" class="status"></span></div>
+        <div class="info-box"><strong>Console:</strong> <span id="console" class="status"></span></div>
+        <div class="info-box"><strong>LCD:</strong> <span id="lcd" class="status"></span></div>
+        <div class="info-box"><strong>Keyboard:</strong> <span id="keyboard" class="status"></span></div>
+        <div class="info-box"><strong>Crypto Controller:</strong> <span id="cryptoController" class="status"></span></div>
+        <div class="info-box"><strong>SD card:</strong> <span id="sdCard" class="status"></span></div>
+        <div class="info-box"><strong>reset:</strong> <span id="reset" class="status"></span></div>
+        <div class="version">Software Version: v1.0.0</div>
     </div>
 
     <script>
