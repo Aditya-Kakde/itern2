@@ -1,28 +1,62 @@
 [2023-11-15 09:30:45] [SYSTEM] Test session started
 [2023-11-15 09:30:46] [MEMORY] Test started
-[2023-11-15 09:30:48] [MEMORY] Test completed - PASS (All sectors verified)
+[2023-11-15 09:30:46] [MEMORY] (All sectors verified)
+[2023-11-15 09:30:48] [MEMORY] Test completed - PASS-1
 [2023-11-15 09:30:49] [ETHERNET] Test started (X1-X2 loopback)
-[2023-11-15 09:30:51] [ETHERNET] X1: 1000 packets sent/1000 received - PASS
-[2023-11-15 09:30:51] [ETHERNET] X2: 1000 packets sent/998 received - PASS
+[2023-11-15 09:30:51] [ETHERNET] X1: 1000 packets sent/1000 received - PASS-1 
+[2023-11-15 09:30:51] [ETHERNET] X2: 1000 packets sent/998 received - FAIL-1
+[2023-11-15 09:30:51] [ETHERNET] X3: 1000 packets sent/998 received - FAIL-1  
 [2023-11-15 09:30:51] [ETHERNET] Test completed - PASS
 [2023-11-15 09:30:52] [UART] Test started
-[2023-11-15 09:30:54] [UART] Test completed - PASS (Baud rate verified)
+[2023-11-15 09:30:52] [UART] X4: 1000 bytes transmitted/received PASS-1
+[2023-11-15 09:30:52] [UART] X5: 1000 bytes transmitted/received PASS-1
+[2023-11-15 09:30:52] [UART] X6: 1000 bytes transmitted/received PASS-1
+[2023-11-15 09:30:54] [UART] Test completed
 [2023-11-15 09:30:55] [DIO] Test started
-[2023-11-15 09:30:57] [DIO] Port 1-8: All pins verified - PASS
-[2023-11-15 09:30:57] [DIO] Test completed - PASS
+[2023-11-15 09:30:57] [DIO] Port 1-8: All pins verified 
+[2023-11-15 09:30:57] [DIO] Test completed - PASS-1
 [2023-11-15 09:30:58] [AI] Test started
-[2023-11-15 09:31:00] [AI] AI1: Expected 2.5V, Measured 2.48V (±0.2V) - PASS
-[2023-11-15 09:31:00] [AI] AI2: Expected 2.5V, Measured 2.51V (±0.2V) - PASS
-[2023-11-15 09:31:00] [AI] AI3: Expected 2.5V, Measured 2.53V (±0.2V) - PASS
-[2023-11-15 09:31:00] [AI] AI4: Expected 2.5V, Measured 2.47V (±0.2V) - PASS
-[2023-11-15 09:31:00] [AI] Test completed - PASS
+[2023-11-15 09:31:00] [AI] Test completed - PASS-1
 [2023-11-15 09:31:01] [LCD] Test started
-[2023-11-15 09:31:03] [LCD] Test completed - PASS (All pixels verified)
+[2023-11-15 09:31:01] [LCD] (All pixels verified)
+[2023-11-15 09:31:03] [LCD] Test completed - PASS-1
 [2023-11-15 09:31:04] [KEYBOARD] Test started
-[2023-11-15 09:31:06] [KEYBOARD] Test completed - PASS (All keys verified)
+[2023-11-15 09:31:04] [KEYBOARD](All keys verified) 
+[2023-11-15 09:31:06] [KEYBOARD] Test completed - PASS-1
 [2023-11-15 09:31:07] [TIL] Test started
-[2023-11-15 09:31:09] [TIL] Test completed - PASS (All segments verified)
+[2023-11-15 09:31:07] [TIL] (All segments verified) 
+[2023-11-15 09:31:09] [TIL] Test completed - PASS-1
 [2023-11-15 09:31:10] [BLE] Test started
-[2023-11-15 09:31:12] [BLE] Test completed - PASS (Connection established)
-[2023-11-15 09:31:13] [SYSTEM] All tests completed successfully
-[2023-11-15 09:31:14] [BLE] Test completed - PASS (Connection established)
+[2023-11-15 09:31:10] [BLE] (Connection established) 
+[2023-11-15 09:31:12] [BLE] Test completed - PASS-1
+[2023-11-15 09:31:13] [MEMORY] Test started
+[2023-11-15 09:31:14] [MEMORY] (All sectors verified)
+[2023-11-15 09:31:15] [MEMORY] Test completed - PASS-2
+[2023-11-15 09:31:17] [ETHERNET] Test started (X1-X2 loopback)
+[2023-11-15 09:31:19] [ETHERNET] X1: 1000 packets sent/1000 received - FAIL-1 
+[2023-11-15 09:31:21] [ETHERNET] X2: 1000 packets sent/998 received - PASS-1
+[2023-11-15 09:31:22] [ETHERNET] X3: 1000 packets sent/998 received - FAIL-2 
+[2023-11-15 09:31:23] [ETHERNET] Test completed - PASS
+[2023-11-15 09:31:24] [UART] Test started
+[2023-11-15 09:31:25] [UART] X4: 1000 bytes transmitted/received PASS-2
+[2023-11-15 09:31:25] [UART] X5: 1000 bytes transmitted/received PASS-2
+[2023-11-15 09:31:25] [UART] X6: 1000 bytes transmitted/received PASS-2
+[2023-11-15 09:31:26] [UART] Test completed - PASS (Baud rate verified)-2
+[2023-11-15 09:31:27] [DIO] Test started
+[2023-11-15 09:31:29] [DIO] Port 1-8: All pins verified 
+[2023-11-15 09:31:31] [DIO] Test completed - PASS-2
+[2023-11-15 09:31:33] [AI] Test started
+[2023-11-15 09:31:35] [AI] Test completed - FAIL-1
+[2023-11-15 09:31:37] [LCD] Test started
+[2023-11-15 09:31:39] [LCD] (All pixels verified)
+[2023-11-15 09:31:40] [LCD] Test completed - PASS-2
+[2023-11-15 09:31:42] [KEYBOARD] Test started
+[2023-11-15 09:31:43] [KEYBOARD](All keys verified) 
+[2023-11-15 09:31:44] [KEYBOARD] Test completed - PASS-2
+[2023-11-15 09:31:45] [TIL] Test started
+[2023-11-15 09:31:46] [TIL] (All segments verified) 
+[2023-11-15 09:31:48] [TIL] Test completed - PASS-2
+[2023-11-15 09:31:49] [BLE] Test started
+[2023-11-15 09:31:51] [BLE] (Connection established) 
+[2023-11-15 09:31:52] [BLE] Test completed - PASS-2
+[2023-11-15 09:31:55] [SYSTEM] All tests completed successfully
