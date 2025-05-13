@@ -601,7 +601,7 @@
     }
 
 </script>
-<script>
+<!--<script>
     const logContainer = document.getElementById('globalLog');
     const testTable = document.getElementById('testTable');
     const testStates = {};  // To track enabled/running/finished states
@@ -816,6 +816,218 @@
       document.getElementById("modalOverlay").style.display = "block";
       document.getElementById("configModal").style.display = "block";
     }
-</script>
+</script>-->
+<script>
+    const logContainer = document.getElementById('globalLog');
+    const testTable = document.getElementById('testTable');
+    const testStates = {};  // To track enabled/running/finished states
+    const latestTestResults = {}; // To track latest pass/fail counts for each test
+    let logUpdateInterval = null;
+    let globalTestTimeout = null;
 
+    // Initialize all test states when page loads
+    function initializeTests() {
+        document.querySelectorAll("#testTable tr").forEach(row => {
+            const testName = row.getAttribute("data-test");
+            
+            // Initialize test states
+            testStates[testName] = {
+                enabled: true,
+                running: false,
+                finished: false
+            };
+            
+            // Initialize test results
+            latestTestResults[testName] = {
+                pass: 0,
+                fail: 0
+            };
+            
+            // Initialize display
+            updateTestResultDisplay(testName);
+        });
+    }
+
+    // Call initialization when page loads
+    window.addEventListener('DOMContentLoaded', initializeTests);
+
+    function startTests() {
+        const rows = testTable.querySelectorAll("tr");
+        const isContinuous = document.getElementById("continuousCheckbox").checked;
+        
+        // Get test duration settings
+        let durationInMinutes = localStorage.getItem('testDuration') || 60;
+        durationInMinutes = parseInt(durationInMinutes);
+        
+        // Clamp between 1 minute and 5 days (7200 minutes) and convert to milliseconds
+        const duration = Math.min(Math.max(durationInMinutes, 1), 7200) * 60 * 1000;
+
+        // Set all enabled tests to "In Progress"
+        rows.forEach(row => {
+            const testName = row.getAttribute("data-test");
+            const isEnabled = row.querySelector(".test-toggle").checked;
+            
+            if (isEnabled) {
+                testStates[testName].running = true;
+                testStates[testName].finished = false;
+                updateTestStatus(row.querySelector(".test-toggle"));
+            }
+        });
+
+        // Start periodic log updates
+        logUpdateInterval = setInterval(fetchAndDisplayLogs, 3000);
+        fetchAndDisplayLogs(); // Initial fetch
+
+        // Set timeout to mark tests as finished after duration
+        if (!isContinuous) {
+            globalTestTimeout = setTimeout(() => {
+                rows.forEach(row => {
+                    const testName = row.getAttribute("data-test");
+                    if (testStates[testName].running) {
+                        testStates[testName].running = false;
+                        testStates[testName].finished = true;
+                        updateTestStatus(row.querySelector(".test-toggle"));
+                    }
+                });
+                logMessage("Test duration completed - all tests marked as finished");
+            }, duration);
+        }
+
+        logMessage(`All enabled tests started (${isContinuous ? "continuous" : "duration: " + (duration/60000) + " minutes"})`);
+    }
+
+    function updateTestStatus(checkbox) {
+        const row = checkbox.closest("tr");
+        const testName = row.getAttribute("data-test");
+        const statusCell = row.querySelector(".status");
+        
+        const isEnabled = checkbox.checked;
+        testStates[testName].enabled = isEnabled;
+        
+        if (!isEnabled) {
+            statusCell.textContent = "Disabled";
+            statusCell.className = "status status-disabled";
+            testStates[testName].running = false;
+            testStates[testName].finished = false;
+        } else if (testStates[testName].finished) {
+            statusCell.textContent = "Finished";
+            statusCell.className = "status status-finished";
+        } else if (testStates[testName].running) {
+            statusCell.textContent = "In Progress";
+            statusCell.className = "status status-in-progress";
+        } else {
+            statusCell.textContent = "Enabled";
+            statusCell.className = "status status-enabled";
+        }
+    }
+
+    function fetchAndDisplayLogs() {
+        fetch('/get-log')
+            .then(response => response.json())
+            .then(data => {
+                logContainer.innerHTML = '';
+                let allLogLines = [];
+                
+                if (Array.isArray(data)) {
+                    allLogLines = data;
+                } else if (typeof data === 'object') {
+                    allLogLines = Object.values(data).flat();
+                } else {
+                    allLogLines = data.split('\n');
+                }
+                
+                // Process logs in reverse to find the latest results first
+                for (let i = allLogLines.length - 1; i >= 0; i--) {
+                    const line = allLogLines[i];
+                    if (!line) continue;
+                    
+                    // Display all logs
+                    const logEntry = document.createElement('div');
+                    logEntry.textContent = line;
+                    logContainer.appendChild(logEntry);
+                    
+                    // Parse for test results (only process if we haven't found latest results yet)
+                    parseTestResults(line);
+                }
+                
+                logContainer.scrollTop = logContainer.scrollHeight;
+            })
+            .catch(error => {
+                //console.error('Error fetching logs:', error);
+                //logMessage(`Error loading logs: ${error.message}`);
+            });
+    }
+
+    function parseTestResults(line) {
+        // Extract test name from log line (e.g., "[MEMORY]" -> "MEMORY")
+        const testMatch = line.match(/\[([A-Z]+)\]/);
+        if (!testMatch) return;
+        
+        const testName = testMatch[1];
+        
+        // Only process if we haven't found results for this test yet
+        if (latestTestResults[testName].processed) return;
+        
+        // Check for PASS/FAIL in this line
+        const passMatch = line.match(/PASS-(\d+)/);
+        const failMatch = line.match(/FAIL-(\d+)/);
+        
+        if (passMatch || failMatch) {
+            // Update counts based on what we found
+            if (passMatch) {
+                latestTestResults[testName].pass = parseInt(passMatch[1]);
+            }
+            if (failMatch) {
+                latestTestResults[testName].fail = parseInt(failMatch[1]);
+            }
+            
+            // Mark this test as processed so we don't look at older entries
+            latestTestResults[testName].processed = true;
+            
+            // Update the display
+            updateTestResultDisplay(testName);
+        }
+    }
+
+    function updateTestResultDisplay(testName) {
+        const row = document.querySelector(`tr[data-test="${testName}"]`);
+        if (!row) return;
+
+        const resultCell = row.cells[3];
+        const results = latestTestResults[testName];
+        const total = results.pass + results.fail;
+        
+        resultCell.innerHTML = `
+            Total: ${total}<br>
+            <span class="pass">Pass: ${results.pass}</span><br>
+            <span class="fail">Fail: ${results.fail}</span>
+        `;
+    }
+
+    function logMessage(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.innerHTML = `[${timestamp}] ${message}`;
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    // Initialize test toggles
+    document.querySelectorAll(".test-toggle").forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateTestStatus(this);
+        });
+    });
+
+    // Initialize continuous checkbox
+    document.getElementById("continuousCheckbox").addEventListener("change", function() {
+        const rows = testTable.querySelectorAll("tr");
+        rows.forEach(row => {
+            const checkbox = row.querySelector(".test-toggle");
+            if (checkbox.checked) {
+                updateTestStatus(checkbox);
+            }
+        });
+    });
+</script>
 </html>
