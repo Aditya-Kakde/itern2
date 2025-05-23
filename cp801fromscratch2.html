@@ -407,7 +407,7 @@
         </thead>
         <tbody id="testTable">
             <tr data-test="Memory">
-                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                <td><input type="checkbox" class="test-toggle" checked onchange="updateTestRow(this)"></td>
                 <td>Memory</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
@@ -418,25 +418,25 @@
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
-            <tr data-test="UART">
+            <tr data-test="Uart">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
-                <td>UART</td>
+                <td>Uart</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
-            <tr data-test="DIO">
+            <tr data-test="Dio">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
                 <td>DIO</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
-            <tr data-test="AI">
+            <tr data-test="Ai">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
                 <td>AI</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
-            <tr data-test="LCD">
+            <tr data-test="Lcd">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
                 <td>LCD</td>
                 <td class="status status-enabled">Enabled</td>
@@ -448,13 +448,13 @@
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
-            <tr data-test="TIL">
+            <tr data-test="Til">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
                 <td>TIL</td>
                 <td class="status status-enabled">Enabled</td>
                 <td>-</td>
             </tr>
-            <tr data-test="BLE">
+            <tr data-test="Ble">
                 <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
                 <td>BLE</td>
                 <td class="status status-enabled">Enabled</td>
@@ -462,8 +462,6 @@
             </tr>
         </tbody>
     </table>
-    <p>*minimum 1 minute, maximum 5 days</p>
-    
     <h3>Test Logs</h3>
     <div class="log-container" id="globalLog"></div>
 
@@ -490,7 +488,7 @@
             <div class="duration-input-group">
                 <label for="durationValue">Duration:</label>
                 <div class="duration-input-wrapper">
-                    <input type="number" id="durationValue" min="1" max="7200" value="60">
+                    <input type="number" id="durationValue" min="1" max="7200" value="1">
                     <select id="durationUnit">
                         <option value="minutes">Minutes</option>
                         <option value="hours">Hours</option>
@@ -521,11 +519,30 @@
         document.getElementById('durationModal').style.display = 'none';
     }
     
-    function saveDuration() {
-        const durationValue = document.getElementById('durationValue').value;
-        const durationUnit = document.getElementById('durationUnit').value;
-        
-        // Validate the input
+    // Add this event listener to your existing JavaScript code
+document.getElementById('continuousCheckbox').addEventListener('change', function() {
+    const durationValue = document.getElementById('durationValue');
+    const durationUnit = document.getElementById('durationUnit');
+    
+    if (this.checked) {
+        // Disable duration inputs when continuous is checked
+        durationValue.disabled = true;
+        durationUnit.disabled = true;
+    } else {
+        // Enable duration inputs when continuous is unchecked
+        durationValue.disabled = false;
+        durationUnit.disabled = false;
+    }
+});
+
+// Also update the saveDuration function to handle continuous mode
+function saveDuration() {
+    const durationValue = document.getElementById('durationValue').value;
+    const durationUnit = document.getElementById('durationUnit').value;
+    const isContinuous = document.getElementById('continuousCheckbox').checked;
+    
+    if (!isContinuous) {
+        // Validate the input only if not in continuous mode
         const minValue = 1;
         const maxValue = 7200; // 5 days in minutes
         
@@ -542,14 +559,21 @@
             durationInMinutes = durationValue * 1440; // 24*60
         }
         
-        // Store the duration (you can use localStorage or a variable)
+        // Store the duration
         localStorage.setItem('testDuration', durationInMinutes);
-        
-        // Display the selected duration
-        alert(`Test duration set to ${durationValue} ${durationUnit}`);
-        
-        closeDurationModal();
+    } else {
+        // Store that we're in continuous mode
+        localStorage.setItem('testDuration', 'continuous');
     }
+    
+    // Display the selected mode
+    const message = isContinuous ? 
+        "Test set to run continuously" : 
+        `Test duration set to ${durationValue} ${durationUnit}`;
+    alert(message);
+    
+    closeDurationModal();
+}
     
     function saveLogs() {
         const logText = logContainer.innerText;
@@ -603,433 +627,197 @@
     }
 
 </script>
-<!--<script>
-    const logContainer = document.getElementById('globalLog');
-    const testTable = document.getElementById('testTable');
-    const testStates = {};  // To track enabled/running/finished states
-    const testCounts = {};  // To track pass/fail counts for each test
-    let logUpdateInterval = null;
-    let globalTestTimeout = null;
+<script>
+    // Global variables to track test states
+    const testStatus = {
+        Memory: { enabled: true, running: false, passes: 0, fails: 0 , processedLines: new Set() },
+        Ethernet: { enabled: true, running: false, passes: 0, fails: 0, processedLines: new Set()  },
+        Uart: { enabled: true, running: false, passes: 0, fails: 0 , processedLines: new Set() },
+        Dio: { enabled: true, running: false, passes: 0, fails: 0 , processedLines: new Set() },
+        Ai: { enabled: true, running: false, passes: 0, fails: 0, processedLines: new Set()  },
+        Lcd: { enabled: true, running: false, passes: 0, fails: 0 , processedLines: new Set() },
+        Keyboard: { enabled: true, running: false, passes: 0, fails: 0, processedLines: new Set()  },
+        Til: { enabled: true, running: false, passes: 0, fails: 0, processedLines: new Set()  },
+        Ble: { enabled: true, running: false, passes: 0, fails: 0, processedLines: new Set()  }
+    };
 
-    // Initialize all test states and counts when page loads
-    function initializeTests() {
-        document.querySelectorAll("#testTable tr").forEach(row => {
-            const testName = row.getAttribute("data-test");
-            
-            // Initialize test states
-            testStates[testName] = {
-                enabled: true,
-                running: false,
-                finished: false
-            };
-            
-            // Initialize test counts
-            testCounts[testName] = { 
-                total:0, 
-                pass:0, 
-                fail:0 
-            };
-            
-            // Initialize display
-            updateTestResultDisplay(testName);
-        });
-    }
+    let allProcessedLines = new Set();
+    let logInterval;
 
-    // Call initialization when page loads
-    window.addEventListener('DOMContentLoaded', initializeTests);
 
-    function startTests() {
-        const rows = testTable.querySelectorAll("tr");
-        const isContinuous = document.getElementById("continuousCheckbox").checked;
-        
-        // Get test duration settings
-        let durationInMinutes = localStorage.getItem('testDuration') || 60; // Default to 60 minutes if not set
-        durationInMinutes = parseInt(durationInMinutes);
-        
-        // Clamp between 1 minute and 5 days (7200 minutes) and convert to milliseconds
-        const duration = Math.min(Math.max(durationInMinutes, 1), 7200) * 60 * 1000;
-
-        // Set all enabled tests to "In Progress"
-        rows.forEach(row => {
-            const testName = row.getAttribute("data-test");
-            const isEnabled = row.querySelector(".test-toggle").checked;
-            
-            if (isEnabled) {
-                testStates[testName].running = true;
-                testStates[testName].finished = false;
-                updateTestStatus(row.querySelector(".test-toggle"));
-            }
-        });
-
-        // Start periodic log updates
-        logUpdateInterval = setInterval(fetchAndDisplayLogs, 3000);
-        fetchAndDisplayLogs(); // Initial fetch
-
-        // Set timeout to mark tests as finished after duration
-        if (!isContinuous) {
-            globalTestTimeout = setTimeout(() => {
-                rows.forEach(row => {
-                    const testName = row.getAttribute("data-test");
-                    if (testStates[testName].running) {
-                        testStates[testName].running = false;
-                        testStates[testName].finished = true;
-                        updateTestStatus(row.querySelector(".test-toggle"));
-                    }
-                });
-                logMessage("Test duration completed - all tests marked as finished");
-            }, duration);
-        }
-
-        logMessage(`All enabled tests started (${isContinuous ? "continuous" : "duration: " + (duration/60000) + " minutes"})`);
-    }
-
-    function updateTestStatus(checkbox) {
-        const row = checkbox.closest("tr");
-        const testName = row.getAttribute("data-test");
-        const statusCell = row.querySelector(".status");
-        
-        const isEnabled = checkbox.checked;
-        testStates[testName].enabled = isEnabled;
-        
-        if (!isEnabled) {
-            statusCell.textContent = "Disabled";
-            statusCell.className = "status status-disabled";
-            testStates[testName].running = false;
-            testStates[testName].finished = false;
-        } else if (testStates[testName].finished) {
-            statusCell.textContent = "Finished";
-            statusCell.className = "status status-finished";
-        } else if (testStates[testName].running) {
-            statusCell.textContent = "In Progress";
-            statusCell.className = "status status-in-progress";
-        } else {
-            statusCell.textContent = "Enabled";
-            statusCell.className = "status status-enabled";
-        }
-    }
-
-    function fetchAndDisplayLogs() {
-        fetch('/get-log')
-            .then(response => response.json())
-            .then(data => {
-                logContainer.innerHTML = '';
-                let allLogLines = [];
-                
-                if (Array.isArray(data)) {
-                    allLogLines = data;
-                } else if (typeof data === 'object') {
-                    allLogLines = Object.values(data).flat();
-                } else {
-                    allLogLines = data.split('\n');
-                }
-                
-                allLogLines.forEach(line => {
-                    if (!line) return;
-                    
-                    const logEntry = document.createElement('div');
-                    logEntry.textContent = line;
-                    logContainer.appendChild(logEntry);
-                    
-                    parseTestResults(line);
-                });
-                
-                logContainer.scrollTop = logContainer.scrollHeight;
-            })
-            .catch(error => {
-                console.error('Error fetching logs:', error);
-                logMessage(`Error loading logs: ${error.message}`);
-            });
-    }
-
-    function parseTestResults(line) {
-        // Extract test name from log line (e.g., "[MEMORY]" -> "MEMORY")
-        const testMatch = line.match(/\[([A-Z]+)\]/);
-        if (!testMatch) return;
-        
-        const testName = testMatch[1];
-        const row = document.querySelector(`tr[data-test="${testName}"]`);
-        if (!row || !testCounts[testName]) return;
-
-        // Check for test completion
-        if (line.includes('Test completed')) {
-            testCounts[testName].total++;
-            
-            if (line.includes('PASS')) {
-                testCounts[testName].pass++;
-            } else if (line.includes('FAIL')) {
-                testCounts[testName].fail++;
-            }
-            
-            updateTestResultDisplay(testName);
-        }
-        // Special handling for Ethernet packet counts
-        else if (testName === 'ETHERNET' && line.includes('packets sent')) {
-            testCounts[testName].total++;
-            if (line.includes('1000/1000')) {
-                testCounts[testName].pass++;
-            } else {
-                testCounts[testName].fail++;
-            }
-            updateTestResultDisplay(testName);
-        }
-    }
-
-    function updateTestResultDisplay(testName) {
-        const row = document.querySelector(`tr[data-test="${testName}"]`);
-        if (!row || !testCounts[testName]) return;
-
-        const counts = testCounts[testName];
-        const resultCell = row.cells[3];
-        
-        resultCell.innerHTML = `
-            Total: ${counts.total}<br>
-            <span class="pass">Pass: ${counts.pass}</span><br>
-            <span class="fail">Fail: ${counts.fail}</span>
-        `;
-    }
-
-    function logMessage(message) {
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = document.createElement('div');
-        logEntry.innerHTML = `[${timestamp}] ${message}`;
-        logContainer.appendChild(logEntry);
-        logContainer.scrollTop = logContainer.scrollHeight;
-    }
+    
+    
 
     // Initialize test toggles
     document.querySelectorAll(".test-toggle").forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            updateTestStatus(this);
+            const testName = this.closest("tr").getAttribute("data-test");
+            testStatus[testName].enabled = this.checked;
+            updateTestRow(testName);
         });
     });
 
-    // Initialize continuous checkbox
-    document.getElementById("continuousCheckbox").addEventListener("change", function() {
-        const rows = testTable.querySelectorAll("tr");
-        rows.forEach(row => {
-            const checkbox = row.querySelector(".test-toggle");
-            if (checkbox.checked) {
-                updateTestStatus(checkbox);
-            }
-        });
-    });
-
-    function openReconfig() {
-      document.getElementById("modalOverlay").style.display = "block";
-      document.getElementById("configModal").style.display = "block";
-    }
-</script>-->
-<script>
-    const logContainer = document.getElementById('globalLog');
-    const testTable = document.getElementById('testTable');
-    const testStates = {};  // To track enabled/running/finished states
-    const latestTestResults = {}; // To track latest pass/fail counts for each test
-    let logUpdateInterval = null;
-    let globalTestTimeout = null;
-
-    // Initialize all test states when page loads
-    function initializeTests() {
-        document.querySelectorAll("#testTable tr").forEach(row => {
-            const testName = row.getAttribute("data-test");
-            
-            // Initialize test states
-            testStates[testName] = {
-                enabled: true,
-                running: false,
-                finished: false
-            };
-            
-            // Initialize test results
-            latestTestResults[testName] = {
-                pass: 0,
-                fail: 0
-            };
-            
-            // Initialize display
-            updateTestResultDisplay(testName);
-        });
-    }
-
-    // Call initialization when page loads
-    window.addEventListener('DOMContentLoaded', initializeTests);
-
-    function startTests() {
-        const rows = testTable.querySelectorAll("tr");
-        const isContinuous = document.getElementById("continuousCheckbox").checked;
-        
-        // Get test duration settings
-        let durationInMinutes = localStorage.getItem('testDuration') || 60;
-        durationInMinutes = parseInt(durationInMinutes);
-        
-        // Clamp between 1 minute and 5 days (7200 minutes) and convert to milliseconds
-        const duration = Math.min(Math.max(durationInMinutes, 1), 7200) * 60 * 1000;
-
-        // Set all enabled tests to "In Progress"
-        rows.forEach(row => {
-            const testName = row.getAttribute("data-test");
-            const isEnabled = row.querySelector(".test-toggle").checked;
-            
-            if (isEnabled) {
-                testStates[testName].running = true;
-                testStates[testName].finished = false;
-                updateTestStatus(row.querySelector(".test-toggle"));
-            }
-        });
-
-        // Start periodic log updates
-        logUpdateInterval = setInterval(fetchAndDisplayLogs, 3000);
-        fetchAndDisplayLogs(); // Initial fetch
-
-        // Set timeout to mark tests as finished after duration
-        if (!isContinuous) {
-            globalTestTimeout = setTimeout(() => {
-                rows.forEach(row => {
-                    const testName = row.getAttribute("data-test");
-                    if (testStates[testName].running) {
-                        testStates[testName].running = false;
-                        testStates[testName].finished = true;
-                        updateTestStatus(row.querySelector(".test-toggle"));
-                    }
-                });
-                logMessage("Test duration completed - all tests marked as finished");
-            }, duration);
-        }
-
-        logMessage(`All enabled tests started (${isContinuous ? "continuous" : "duration: " + (duration/60000) + " minutes"})`);
-    }
-
-    function updateTestStatus(checkbox) {
-        const row = checkbox.closest("tr");
-        const testName = row.getAttribute("data-test");
-        const statusCell = row.querySelector(".status");
-        
-        const isEnabled = checkbox.checked;
-        testStates[testName].enabled = isEnabled;
-        
-        if (!isEnabled) {
-            statusCell.textContent = "Disabled";
-            statusCell.className = "status status-disabled";
-            testStates[testName].running = false;
-            testStates[testName].finished = false;
-        } else if (testStates[testName].finished) {
-            statusCell.textContent = "Finished";
-            statusCell.className = "status status-finished";
-        } else if (testStates[testName].running) {
-            statusCell.textContent = "In Progress";
-            statusCell.className = "status status-in-progress";
-        } else {
-            statusCell.textContent = "Enabled";
-            statusCell.className = "status status-enabled";
-        }
-    }
-
-    function fetchAndDisplayLogs() {
-        fetch('/get-log')
-            .then(response => response.json())
-            .then(data => {
-                logContainer.innerHTML = '';
-                let allLogLines = [];
-                
-                if (Array.isArray(data)) {
-                    allLogLines = data;
-                } else if (typeof data === 'object') {
-                    allLogLines = Object.values(data).flat();
-                } else {
-                    allLogLines = data.split('\n');
-                }
-                
-                // Process logs in reverse to find the latest results first
-                for (let i = allLogLines.length - 1; i >= 0; i--) {
-                    const line = allLogLines[i];
-                    if (!line) continue;
-                    
-                    // Display all logs
-                    const logEntry = document.createElement('div');
-                    logEntry.textContent = line;
-                    logContainer.appendChild(logEntry);
-                    
-                    // Parse for test results (only process if we haven't found latest results yet)
-                    parseTestResults(line);
-                }
-                
-                logContainer.scrollTop = logContainer.scrollHeight;
-            })
-            .catch(error => {
-                //console.error('Error fetching logs:', error);
-                //logMessage(`Error loading logs: ${error.message}`);
-            });
-    }
-
-    function parseTestResults(line) {
-        // Extract test name from log line (e.g., "[MEMORY]" -> "MEMORY")
-        const testMatch = line.match(/\[([A-Z]+)\]/);
-        if (!testMatch) return;
-        
-        const testName = testMatch[1];
-        
-        // Only process if we haven't found results for this test yet
-        if (latestTestResults[testName].processed) return;
-        
-        // Check for PASS/FAIL in this line
-        const passMatch = line.match(/PASS-(\d+)/);
-        const failMatch = line.match(/FAIL-(\d+)/);
-        
-        if (passMatch || failMatch) {
-            // Update counts based on what we found
-            if (passMatch) {
-                latestTestResults[testName].pass = parseInt(passMatch[1]);
-            }
-            if (failMatch) {
-                latestTestResults[testName].fail = parseInt(failMatch[1]);
-            }
-            
-            // Mark this test as processed so we don't look at older entries
-            latestTestResults[testName].processed = true;
-            
-            // Update the display
-            updateTestResultDisplay(testName);
-        }
-    }
-
-    function updateTestResultDisplay(testName) {
+    // Function to update test row display
+    function updateTestRow(testName) {
         const row = document.querySelector(`tr[data-test="${testName}"]`);
         if (!row) return;
 
-        const resultCell = row.cells[3];
-        const results = latestTestResults[testName];
-        const total = results.pass + results.fail;
-        
-        resultCell.innerHTML = `
-            Total: ${total}<br>
-            <span class="pass">Pass: ${results.pass}</span><br>
-            <span class="fail">Fail: ${results.fail}</span>
-        `;
+        const statusCell = row.querySelector(".status");
+        const resultCell = row.querySelector("td:nth-child(4)");
+        const test = testStatus[testName];
+
+        // Update status cell
+        statusCell.className = "status";
+        if (!test.enabled) {
+            statusCell.textContent = "Disabled";
+            statusCell.classList.add("status-disabled");
+        } else if (test.running) {
+            statusCell.textContent = "In Progress";
+            statusCell.classList.add("status-in-progress");
+        } else {
+            statusCell.textContent = "Enabled";
+            statusCell.classList.add("status-enabled");
+        }
+
+        // Update result cell
+        const totalTests = test.passes + test.fails;
+        if (totalTests > 0) {
+            resultCell.innerHTML = `
+                <span class="pass">Pass:${test.passes}</span> / 
+                <span class="fail">Fail:${test.fails}</span>
+            `;
+        } else {
+            resultCell.textContent = "-";
+        }
     }
 
-    function logMessage(message) {
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = document.createElement('div');
-        logEntry.innerHTML = `[${timestamp}] ${message}`;
-        logContainer.appendChild(logEntry);
-        logContainer.scrollTop = logContainer.scrollHeight;
-    }
+    // Function to process logs from Node-RED
+    function processLogs(logData) {
+        const logContainer = document.getElementById("globalLog");
+        let newLogsFound = false;
 
-    // Initialize test toggles
-    document.querySelectorAll(".test-toggle").forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            updateTestStatus(this);
-        });
-    });
+        if (!Array.isArray(logData.logs)) return;
 
-    // Initialize continuous checkbox
-    document.getElementById("continuousCheckbox").addEventListener("change", function() {
-        const rows = testTable.querySelectorAll("tr");
-        rows.forEach(row => {
-            const checkbox = row.querySelector(".test-toggle");
-            if (checkbox.checked) {
-                updateTestStatus(checkbox);
+        logData.logs.forEach(entry => {
+            const { section, line } = entry;
+
+            if (!line || allProcessedLines.has(line)) return;
+
+            const testName = section.charAt(0).toUpperCase() + section.slice(1);
+            const test = testStatus[testName];
+            if (!test) return;
+
+            // Add log entry to the container
+            const logEntry = document.createElement("div");
+            logEntry.textContent = line;
+            logContainer.appendChild(logEntry);
+
+            allProcessedLines.add(line);
+            newLogsFound = true;
+
+            if (!test.processedLines.has(line)) {
+                test.processedLines.add(line);
+
+                // Test running/completed logic
+                if (line.includes("STATUS=STARTED")) {
+                    test.running = true;
+                }// else if (line.includes("RESULT=")) {
+                //     test.running = false;
+                // }
+
+                if (line.includes("RESULT=PASS") && !line.includes("PASS-")) {
+                    test.passes++;
+                } else if (line.includes("RESULT=FAIL") && !line.includes("FAIL-")) {
+                    test.fails++;
+                }
+
+                updateTestRow(testName);
             }
         });
+
+        // Uncomment if you want the log view to auto-scroll on new logs
+        // if (newLogsFound) {
+        //     logContainer.scrollTop = logContainer.scrollHeight;
+        // }
+    }
+
+
+    // Function to fetch logs from Node-RED
+    function fetchLogs() {
+        fetch('/get-log')
+            .then(response => response.json())
+            .then(data => {
+                // Only process if we get valid data
+                if (data && typeof data === 'object') {
+                    processLogs(data);
+                }
+            })
+            .catch(error => console.error("Error fetching logs:", error));
+    }
+
+    // Start/Stop test functions
+    function startTests() {
+        // Mark enabled tests as running
+        Object.keys(testStatus).forEach(testName => {
+            if (testStatus[testName].enabled) {
+                testStatus[testName].running = true;
+                updateTestRow(testName);
+            }
+        });
+
+        // Start polling for logs
+        logInterval = setInterval(fetchLogs, 1000);
+        fetchLogs(); // Initial fetch
+    }
+
+    function stopTests() {
+        // Mark all tests as not running
+        Object.keys(testStatus).forEach(testName => {
+            testStatus[testName].running = false;
+            updateTestRow(testName);
+        });
+
+        // Stop polling for logs
+        if (logInterval) clearInterval(logInterval);
+    }
+
+    function pauseTests() {
+        // Pause polling for logs
+        if (logInterval) clearInterval(logInterval);
+    }
+
+    function restartTests() {
+        // Reset test counts
+        Object.keys(testStatus).forEach(testName => {
+            testStatus[testName].passes = 0;
+            testStatus[testName].fails = 0;
+            updateTestRow(testName);
+        });
+
+        // Restart log polling
+        if (logInterval) clearInterval(logInterval);
+        logInterval = setInterval(fetchLogs, 2000);
+        fetchLogs();
+    }
+
+    // Initialize all test rows
+    Object.keys(testStatus).forEach(testName => {
+        updateTestRow(testName);
     });
+
+    document.querySelectorAll(".test-toggle").forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const testName = this.closest("tr").getAttribute("data-test");
+            testStatus[testName].enabled = this.checked;
+            updateTestRow(testName);
+        });
+    });
+
+    // Initialize all test rows
+    Object.keys(testStatus).forEach(testName => {
+        updateTestRow(testName);
+    });
+    // Keep the existing duration modal functions
+    // ... (your existing duration modal code remains unchanged)
 </script>
 </html>

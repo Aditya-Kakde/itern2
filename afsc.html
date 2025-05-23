@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CP-801 Test Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #e9ecef;
+        }
+
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 25px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: 50px;
+        }
+
+        .menu-btn {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: #007bff;
+            border-radius: 5px;
+            display: block;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-right-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .log-container {
+            height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+            text-align: left;
+            padding: 5px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .start-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .pause-btn {
+            background: #ffc107;
+            color: black;
+        }
+
+        .restart-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .stop-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .save-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .upload-btn {
+            background: #ffc107;
+            color: black;
+        }
+
+        .final-upload-btn {
+            background: #17a2b8;
+            color: white;
+            display: none;
+        }
+
+        .file-status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .back-btn {
+            float: right;
+        }
+
+        .version {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+
+        .version p {
+            margin: 5px 0;
+        }
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+
+        .status-enabled {
+            color: #28a745;
+        }
+
+        .status-disabled {
+            color: #6c757d;
+        }
+
+        .status-enabled-continuous {
+            color: #17a2b8;
+        }
+
+        .status-in-progress {
+            color: #ffc107;
+        }
+
+        .status-finished {
+            color: #03fa1f;
+        }
+
+        .status-paused {
+            color: #f20909;
+        }
+
+        .control-buttons {
+            margin-bottom: 15px;
+        }
+        
+        /* New styles for duration controls */
+        .duration-control {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .duration-input {
+            width: 50px;
+            padding: 3px;
+            margin-left: 5px;
+        }
+        .duration-div {
+            width: 100px;
+            padding: 3px;
+            margin-left: 5px;
+        }
+        .continuous-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remaining-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 5px;
+        }
+        .dropdown-container {
+            display: none;
+            background-color: #3e5871;
+            padding-left: 20px;
+        }
+
+        .dropdown-container a {
+            padding: 10px 0;
+            display: block;
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+        }
+
+        .dropdown-container a:hover {
+            text-decoration: underline;
+        }
+        
+        /* New styles for continuous checkbox */
+        .continuous-checkbox {
+            margin-left: 10px;
+        }
+        .continuous-label {
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        /* Duration modal styles */
+        .duration-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .duration-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 350px;
+            border-radius: 5px;
+        }
+        
+        .duration-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .duration-modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .duration-modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .duration-modal-body {
+            margin-bottom: 15px;
+        }
+        
+        .duration-input-group {
+            margin-bottom: 15px;
+        }
+        
+        .duration-input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .duration-input-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        
+        .duration-input-wrapper input {
+            width: 80px;
+            padding: 8px;
+            margin-right: 10px;
+        }
+        
+        .duration-input-wrapper select {
+            padding: 8px;
+        }
+        
+        .duration-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .duration-modal-footer button {
+            margin-left: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CP 801 Test Dashboard</h1>
+        <div class = "control-buttons">
+            <button class="start-btn" onclick="startTests()">Start Test</button>
+            <button class="pause-btn" onclick="pauseTests()">Pause Test</button>
+            <button class="restart-btn" onclick="restartTests()">Restart Test</button>
+            <button class="stop-btn" onclick="stopTests()">Stop Test</button>
+
+            <button onclick="window.location.href='ports-v2.html'">Ports</button>
+            <button onclick="window.location.href='uart.html'">UART</button>
+            <button onclick="window.location.href='memory.html'">Memory</button>
+            
+            <button onclick="openDurationModal()">Duration</button>
+
+            <button class="back-btn" onclick="window.location.href='index.html'">Back</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Enable</th>
+                    <th>Test Name</th>
+                    <th>Status</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="testTable">
+                <tr data-test="Memory">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestRow(this)"></td>
+                    <td>Memory</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Ethernet">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>Ethernet</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Uart">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>Uart</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Dio">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>DIO</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Ai">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>AI</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Lcd">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>LCD</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Keyboard">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>Keyboard</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Til">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>TIL</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+                <tr data-test="Ble">
+                    <td><input type="checkbox" class="test-toggle" checked onchange="updateTestStatus(this)"></td>
+                    <td>BLE</td>
+                    <td class="status status-enabled">Enabled</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Test Logs</h3>
+        <div class="log-container" id="globalLog"></div>
+
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Load Parameters</button>
+        <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload()">
+        <button class="final-upload-btn" id="finalUploadButton" onclick="finalUpload()">Final Upload</button>
+        <div class="file-status" id="fileStatus">No file uploaded.</div>
+
+        <div class="top-right-info">
+            Serial Number:994356<br>
+            Product ID: CABD-9876
+        </div>
+        <div class="version">Software Version: v1.0.0</div>
+    </div>
+
+    <div id="durationModal" class="duration-modal">
+        <div class="duration-modal-content">
+            <div class="duration-modal-header">
+                <div class="duration-modal-title">Set Test Duration</div>
+                <span class="duration-modal-close" onclick="closeDurationModal()">&times;</span>
+            </div>
+            <div class="duration-modal-body">
+                <div class="duration-input-group">
+                    <label for="durationValue">Duration:</label>
+                    <div class="duration-input-wrapper">
+                        <input type="number" id="durationValue" min="1" max="7200" value="1">
+                        <select id="durationUnit">
+                            <option value="minutes">Minutes</option>
+                            <option value="hours">Hours</option>
+                            <option value="days">Days</option>
+                        </select>
+                    </div>
+                    <small>Minimum: 1 minute, Maximum: 5 days(7200 minutes)</small>
+                </div>
+                <input type="checkbox" id="continuousCheckbox" class="continuous-checkbox">
+                <label for="continuousCheckbox" class="continuous-label">Run continuously</label>
+            </div>
+            <div class="duration-modal-footer">
+                <button onclick="closeDurationModal()">Cancel</button>
+                <button class="save-btn" onclick="saveDuration()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="menu-btn" onclick="openNav">☰</button>
+
+    <script>
+        function openDurationModal(){
+            document.getElementById('durationModal').style.display = 'block'
+        }
+
+        function closeDurationModal(){
+            document.getElementById('durationModal').style.display = 'none';
+        }
+
+        function saveDuration(){
+            const durationValue= document.getElementById('durationValue').value;
+            const durationUnit = document.getElementById('durationUnit').value;
+
+            const minValue=1;
+            const maxValue=7200;
+
+            let durationInMinutes = parseInt(durationValue);
+            if (durationUnit === 'hours') {
+                durationInMinutes = durationValue * 60;
+            } else if (durationUnit === 'days') {
+                durationInMinutes = durationValue * 1440; // 24*60
+            }
+            if (durationInMinutes < minValue || durationInMinutes > maxValue) {
+                alert(`Please enter a value between ${minValue} and ${maxValue} minutes (5 days)`);
+                return;
+            }
+            localStorage.setItem('testDuration',durationInMinutes);
+
+            alert(`Test duration set to ${durationValue} ${durationUnit}`);
+
+            closeDurationModal();
+        }
+
+        function saveLogs(){
+            const logText = logContainer.innerText;
+            const blob = new Blob([logText],{type:'text/plain'});
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "test_logs.txt";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            localStorage.removeItem("testLogs");
+        }
+
+        function handleFileUpload(){
+            const fileInput = document.getElementById("fileInput");
+            const fileStatus = document.getElementById("fileStatus");
+            const fileUploadBtn = document.getElementById("finalUploadBtn");
+            if(fileInput.files.length>0){
+                const file = fileInput.files[0];
+                fileStatus.textContent = `File uploaded: ${file.name}`;
+                fileStatus.style.display = "block";
+                finalUploadBtn.style.display = "inline-block";
+            }
+        }
+
+        function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+    // Initialize dropdown functionality
+    const dropdowns = document.getElementsByClassName("dropdown-btn");
+    for (let i = 0; i < dropdowns.length; i++) {
+      dropdowns[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        const dropdownContent = this.nextElementSibling;
+        if (dropdownContent.style.display === "block") {
+          dropdownContent.style.display = "none";
+        } else {
+          dropdownContent.style.display = "block";
+        }
+      });
+    }
+    </script>
+    <script>
+        const testStatus = {
+            Memory: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Ethernet: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Uart: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Dio: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Ai: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Lcd: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Keyboard: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Til: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+            Ble: {enabled:true, running:false, passes:0, fails:0, processedlines:new Set() },
+        }
+
+        let allProcessedLines = new Set();
+        let logInterval;
+
+        document.querySelectorAll(".test-toggle").forEach(checkbox => {
+            checkbox.addEventListener('change',function(){
+                const testName = this.closest("tr").getAttribute("data-test");
+                testStatus[testName].enabled = this.checked;
+                updateTestRow(testName);
+            });
+        });
+
+        function updateTestRow(testName){
+            const row = document.querySelector(`tr[data-test="${testName}"]`);
+            if(!row) return;
+
+            const statusCell = row.querySelector(".status");
+            const resultCell = row.querySelector("td:nth-child(4)");
+            const test = testStatus[testName];
+
+            statusCell.className = "status";
+            if(!test.enabled){
+                statusCell.textContent = "Disabled";
+                statusCell.classList.add("status-disabled");
+            } else if (test.running){
+                statusCell.textContent="In Progress";
+                statusCell.classList.add("status-in-progress")
+            } else{
+                statusCell.textContent = "Enabled";
+                statusCell.classList.add("status-enabled");
+            }
+
+            // Update result cell
+            const totalTests = test.passes + test.fails;
+            if (totalTests > 0) {
+                resultCell.innerHTML = `
+                    <span class="pass">Pass:${test.passes}</span> / 
+                    <span class="fail">Fail:${test.fails}</span>
+                `;
+            } else {
+                resultCell.textContent = "-";
+            }
+        }
+
+        function processLogs(logData){
+            const logContainer = document.getElementById("globalLog");
+            let newLogsFound = false;
+
+            if(!Array.isArray(logData.logs)) return;
+
+            logData.logs.forEach(entry=>{
+                const { section, line} = entry;
+
+                if(!line || allProcessedLines.has(line)) return;
+
+                const testName  = section.charAt(0).toUpperCase() + section.slice(1);
+                const test = testStatus[testName];
+                if(!test) return;
+
+                const logEntry = document.createElement("div");
+                logEntry.textContent = line;
+                logContainer.appendChild(logEntry);
+
+                allProcessedLines.add(line);
+                newLogsFound = true;
+
+                if(!test.processedLines.has(line)){
+                    test.processedLines.add(line);
+
+                    if(line.includes("STATUS=STARTED")){
+                        test.running=true;
+                    }
+                    else if(line.includes("RESULT=")){
+                        test.running = false;
+                    }
+
+                    if(line.includes("RESULT=PASS") && !line.includes("PASS-")){
+                        test.passes++;
+                    } 
+                    else if(line.includes("RESULT=FAIL") && !line.includes("FAIL-")){
+                        test.fails++;
+                    }
+
+                    updateTestRow(testName);
+
+                }
+            })
+        }
+
+        function fetchLogs() {
+            fetch('/get-log')
+                .then(response => response.json())
+                .then(data => {
+                    if(data && typeof data === 'object'){
+                        processLogs(data);
+                    }
+                })
+                .catch(error => console.error("Error fetching logs:",error));
+        }
+
+        function startTests(){
+            Object.keys(testStatus).forEach(testName=>{
+                if(testStatus[testName].enabled){
+                    testStatus[testName].running = true;
+                    updateTestRow(testName);
+                }
+            });
+
+            logInterval = setInterval(fetchLogs,1000);
+            fetchLogs();
+        }
+
+
+        function stopTests() {
+            // Mark all tests as not running
+            Object.keys(testStatus).forEach(testName => {
+                testStatus[testName].running = false;
+                updateTestRow(testName);
+            });
+
+            // Stop polling for logs
+            if (logInterval) clearInterval(logInterval);
+        }
+
+        function pauseTests() {
+            // Pause polling for logs
+            if (logInterval) clearInterval(logInterval);
+        }
+
+        function restartTests() {
+            // Reset test counts
+            Object.keys(testStatus).forEach(testName => {
+                testStatus[testName].passes = 0;
+                testStatus[testName].fails = 0;
+                updateTestRow(testName);
+            });
+
+            // Restart log polling
+            if (logInterval) clearInterval(logInterval);
+            logInterval = setInterval(fetchLogs, 2000);
+            fetchLogs();
+        }
+
+        // Initialize all test rows
+        Object.keys(testStatus).forEach(testName => {
+            updateTestRow(testName);
+        });
+
+        document.querySelectorAll(".test-toggle").forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const testName = this.closest("tr").getAttribute("data-test");
+                testStatus[testName].enabled = this.checked;
+                updateTestRow(testName);
+            });
+        });
+
+        // Initialize all test rows
+        Object.keys(testStatus).forEach(testName => {
+            updateTestRow(testName);
+        });
+
+    </script>
+</body>

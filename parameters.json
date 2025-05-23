@@ -1,0 +1,87 @@
+```json
+{
+  "Memory": {
+    "test_size_kb": 1024,
+    "pattern": "0xAA",
+    "address_start": "0x20000000"
+  },
+  "Ethernet": {
+    "ports": [
+      x1:{
+        "interface": "eth0",
+        "ip_address": "192.168.1.100",
+        "netmask": "255.255.255.0",
+        "gateway": "192.168.1.1",
+        "dns": ["8.8.8.8", "8.8.4.4"],
+        "iperf3_server": "192.168.1.200",
+        "iperf3_duration_s": 10
+      },
+      x2:{
+        "interface": "eth1",
+        "ip_address": "192.168.2.100",
+        "netmask": "255.255.255.0",
+        "gateway": "192.168.2.1",
+        "dns": ["8.8.8.8", "8.8.4.4"],
+        "iperf3_server": "192.168.2.200",
+        "iperf3_duration_s": 10
+      },
+      x3:{
+        "interface": "eth2",
+        "ip_address": "192.168.3.100",
+        "netmask": "255.255.255.0",
+        "gateway": "192.168.3.1",
+        "dns": ["8.8.8.8", "8.8.4.4"],
+        "iperf3_server": "192.168.3.200",
+        "iperf3_duration_s": 10
+      }
+    ]
+  },
+  "UART": {
+    "interface": "/dev/ttyS0",
+    "baudrate": 115200,
+    "parity": "none",
+    "stop_bits": 1,
+    "test_string": "HELLO_UART"
+  },
+  "DIO": {
+    "pins": [0, 1, 2, 3],
+    "direction": "in_out",
+    "toggle_interval_ms": 500,
+    "pattern": [1, 0, 1, 0]
+  },
+  "AI": {
+    "channels": [0, 1, 2, 3],
+    "sampling_rate_hz": 1000,
+    "voltage_min": 0.0,
+    "voltage_max": 3.3,
+    "test_duration_s": 5
+  },
+  "LCD": {
+    "interface": "SPI",
+    "resolution": {
+      "width_px": 320,
+      "height_px": 240
+    },
+    "color_test_pattern": ["red", "green", "blue", "white", "black"],
+    "contrast": 50
+  },
+  "Keyboard": {
+    "layout": "QWERTY",
+    "test_keys": ["A", "B", "C", "1", "2", "3"],
+    "debounce_ms": 20
+  },
+  "TIL": {
+    "interface": "I2C",
+    "address": "0x28",
+    "num_interrupts": 100,
+    "interval_ms": 10
+  },
+  "BLE": {
+    "device_name": "CycloneV_Test",
+    "service_uuid": "12345678-1234-5678-1234-56789abcdef0",
+    "characteristic_uuid": "abcdef01-1234-5678-1234-56789abcdef0",
+    "tx_power_dbm": 0,
+    "scan_duration_s": 5
+  }
+}
+```
